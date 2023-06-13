@@ -6,6 +6,9 @@ import { Form, Input, Select, Button, Row, Col } from 'antd';
 
 const { Option } = Select;
 
+const newRow = {
+  id: 1, // 使用唯一的 ID 标识每行的表单项
+};
 class MyForm extends React.Component {
   state = {
     fields: [], // 存储每行的表单项
@@ -14,12 +17,8 @@ class MyForm extends React.Component {
   handleAddRow = () => {
     const { fields } = this.state;
 
-    const newRow = {
-      id: Date.now(), // 使用唯一的 ID 标识每行的表单项
-    };
-
     this.setState((prevState) => ({
-      fields: [...prevState.fields, newRow],
+      fields: [...prevState.fields, { id: newRow.id++ }],
     }));
   };
 
@@ -41,6 +40,8 @@ class MyForm extends React.Component {
   renderFieldsForRow = (rowIndex) => {
     const { getFieldDecorator } = this.props.form;
     const { fields } = this.state;
+
+    console.log(`fields -- `, fields);
 
     const fieldId = fields[rowIndex].id;
 
