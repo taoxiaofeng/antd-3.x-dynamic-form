@@ -1,48 +1,42 @@
-import React from 'react';
+import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
 import 'antd/dist/antd.css';
 import './index.css';
 import { Form, Input, Select, Button, Row, Col } from 'antd';
 
 const { Option } = Select;
+const MyForm = (props) => {
+  const { form } = props;
+  const [fields, setFields] = useState([]);
+  const [idCounter, setIdCounter] = useState(0);
 
-const newRow = {
-  id: 1, // 使用唯一的 ID 标识每行的表单项
-};
-class MyForm extends React.Component {
-  state = {
-    fields: [], // 存储每行的表单项
+  const handleAddRow = () => {
+    setIdCounter((prevCounter) => prevCounter + 1);
+
+    const newRow = {
+      id: idCounter, // 使用唯一的 ID 标识每行的表单项
+    };
+
+    setFields((prevFields) => [...prevFields, newRow]);
   };
 
-  handleAddRow = () => {
-    const { fields } = this.state;
-
-    this.setState((prevState) => ({
-      fields: [...prevState.fields, { id: newRow.id++ }],
-    }));
+  const handleRemoveRow = (rowIndex) => {
+    setFields((prevFields) =>
+      prevFields.filter((_, index) => index !== rowIndex)
+    );
   };
 
-  handleRemoveRow = (rowIndex) => {
-    this.setState((prevState) => ({
-      fields: prevState.fields.filter((_, index) => index !== rowIndex),
-    }));
-  };
-
-  handleSubmit = (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    this.props.form.validateFields((err, values) => {
+    form.validateFields((err, values) => {
       if (!err) {
         console.log('Form values:', values);
       }
     });
   };
 
-  renderFieldsForRow = (rowIndex) => {
-    const { getFieldDecorator } = this.props.form;
-    const { fields } = this.state;
-
-    console.log(`fields -- `, fields);
-
+  const renderFieldsForRow = (rowIndex) => {
+    const { getFieldDecorator } = form;
     const fieldId = fields[rowIndex].id;
 
     return (
@@ -104,33 +98,30 @@ class MyForm extends React.Component {
         </Col>
         {fields.length > 1 && (
           <Col span={2}>
-            <Button onClick={() => this.handleRemoveRow(rowIndex)}>删除</Button>
+            <Button onClick={() => handleRemoveRow(rowIndex)}>删除</Button>
           </Col>
         )}
       </Row>
     );
   };
 
-  renderRows = () => {
-    const { fields } = this.state;
-
-    return fields.map((_, index) => (
-      <div key={index}>{this.renderFieldsForRow(index)}</div>
-    ));
+  const renderRows = () => {
+    return fields.map((_, index) => {
+      console.log(`renderRows -- `, _, index);
+      return <div key={index}>{renderFieldsForRow(index)}</div>;
+    });
   };
 
-  render() {
-    return (
-      <Form onSubmit={this.handleSubmit}>
-        {this.renderRows()}
-        <Button onClick={this.handleAddRow}>添加行</Button>
-        <Button type="primary" htmlType="submit">
-          提交
-        </Button>
-      </Form>
-    );
-  }
-}
+  return (
+    <Form form={form} onSubmit={handleSubmit}>
+      {renderRows()}
+      <Button onClick={handleAddRow}>添加行</Button>
+      <Button type="primary" htmlType="submit">
+        提交
+      </Button>
+    </Form>
+  );
+};
 
 const WrappedMyForm = Form.create()(MyForm);
 
